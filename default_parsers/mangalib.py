@@ -41,7 +41,7 @@ class MangalibParser(SeleniumPoweredAbstractParser):
         self.driver.get(chapter_url)
         info = self.parse_window_info()
         pages = self.parse_window_pg()
-        server = info['servers']['compress']
+        server = info['servers'][info['img']['server']]
         page_urls = []
         for page_info in pages:
             url = self.SERVER_TEMPLATE.format(
