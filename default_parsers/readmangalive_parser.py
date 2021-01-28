@@ -17,11 +17,13 @@ class ReadMangaLiveParser(AbstractParser):
         self.session = session
 
     def get_manga_info(self, link, *args, **kwargs):
-        url = self.domain.format(link=link.lstrip('/'))
+        url = link
         response = self.session.get(url)
         dom = BeautifulSoup(response.text, features="html.parser")
         entry_point = dom.select_one('.btn-block').get_attribute_list('href')[0]
         name = dom.select_one('span.name').text
+        description = dom.select_one('meta[name="description"]').get_attribute_list('content')[0]
+        score = dom.select_one('.rating-block').get_attribute_list('data-score')[0]
         thumbnails = []
         thumbnails_img_tags = dom.select_one('.picture-fotorama').select('img')
         for img in thumbnails_img_tags:
@@ -30,7 +32,9 @@ class ReadMangaLiveParser(AbstractParser):
         return {
             'name': name,
             'thumb_urls': thumbnails,
-            'entry_point': entry_point
+            'entry_point': entry_point,
+            'description': description,
+            'score': score
         }
 
     def get_entry_point(self, link):
@@ -86,7 +90,7 @@ class ReadMangaLiveParser(AbstractParser):
             if not response.ok:
                 raise Exception(f"Response failed with status code {response.status_code}")
             json_data = response.json()
-            return [sug for sug in json_data['suggestions'] if sug not in self.rejected]
+            return [sug for sug in json_data['suggestions'] if not sug['link'].startswith('/list/person')]
         except Exception as e:
             print(e)
             return []

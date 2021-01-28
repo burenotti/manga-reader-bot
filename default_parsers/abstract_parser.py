@@ -92,6 +92,21 @@ class IManga:
         raise NotImplementedError()
 
 
+class ISearchResult:
+
+    @property
+    def title(self) -> str:
+        raise NotImplementedError()
+
+    @property
+    def description(self) -> str:
+        raise NotImplementedError()
+
+    @property
+    def thumb_url(self) -> str:
+        raise NotImplementedError()
+    
+
 class AbstractParser:
     def __init__(self, *args, **kwargs):
         pass
