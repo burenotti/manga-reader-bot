@@ -5,15 +5,33 @@ from typing import List
 from .abstract_parser import AbstractParser
 
 
-class ReadMangaLiveParser:
+class ReadMangaLiveParser(AbstractParser):
 
     domain = 'https://readmanga.live/{link}'
     rejected = ['Автор', 'Переводчик']
 
-    def __init__(self, session=None, **kwargs):
+    def __init__(self, session=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         if session is None:
             session = Session()
         self.session = session
+
+    def get_manga_info(self, link, *args, **kwargs):
+        url = self.domain.format(link=link.lstrip('/'))
+        response = self.session.get(url)
+        dom = BeautifulSoup(response.text, features="html.parser")
+        entry_point = dom.select_one('.btn-block').get_attribute_list('href')[0]
+        name = dom.select_one('span.name').text
+        thumbnails = []
+        thumbnails_img_tags = dom.select_one('.picture-fotorama').select('img')
+        for img in thumbnails_img_tags:
+            thumbnails.append(img.get_attribute_list('src')[0])
+
+        return {
+            'name': name,
+            'thumb_urls': thumbnails,
+            'entry_point': entry_point
+        }
 
     def get_entry_point(self, link):
         url = self.domain.format(link=link.lstrip('/'))
@@ -68,11 +86,7 @@ class ReadMangaLiveParser:
             if not response.ok:
                 raise Exception(f"Response failed with status code {response.status_code}")
             json_data = response.json()
-            json_data['suggestions'] = [sug for sug in json_data['suggestions'] if sug not in self.rejected]
-            return json_data
+            return [sug for sug in json_data['suggestions'] if sug not in self.rejected]
         except Exception as e:
             print(e)
-            return {
-                'query': None,
-                'suggestions': [],
-            }
+            return []
