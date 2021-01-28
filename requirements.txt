@@ -1,3 +1,4 @@
 pyTelegramBotAPI
 requests
-selenium
+beautifulsoup4
+telegraph
