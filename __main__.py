@@ -106,7 +106,11 @@ def search_query(inline_query):
 
 
 def main():
-    bot.polling(True, 0)
+    while True:
+        try:
+            bot.polling(True, 0)
+        catch Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
