@@ -109,7 +109,7 @@ def main():
     while True:
         try:
             bot.polling(True, 0)
-        catch Exception as e:
+        except Exception as e:
             print(e)
 
 
